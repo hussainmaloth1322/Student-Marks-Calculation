@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Marks Calculator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef2ff;
+            color: #1e293b;
+        }
+
+        header {
+            background: #312e81;
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header p {
+            margin-bottom: 0;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 35px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px #0002;
+        }
+
+        h2 {
+            text-align: center;
+            color: #312e81;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 25px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #3730a3;
+        }
+
+        #result {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background: #eef2ff;
+            border-radius: 10px;
+        }
+
+        #result h3 {
+            color: #312e81;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Student Marks Calculator</h1>
+    <p>Student Academic Performance Management System</p>
+</header>
+
+<div class="container">
+
+    <h2>Enter Student Details</h2>
+
+    <form id="marksForm">
+
+        <label>Student Name</label>
+        <input type="text" id="studentName"
+               placeholder="Enter student name" required>
+
+        <label>Roll Number</label>
+        <input type="text" id="rollNumber"
+               placeholder="Enter roll number" required>
+
+        <label>Subject 1 Marks</label>
+        <input type="number" id="m1"
+               placeholder="Enter marks out of 100"
+               min="0" max="100" step="any" required>
+
+        <label>Subject 2 Marks</label>
+        <input type="number" id="m2"
+               placeholder="Enter marks out of 100"
+               min="0" max="100" step="any" required>
+
+        <label>Subject 3 Marks</label>
+        <input type="number" id="m3"
+               placeholder="Enter marks out of 100"
+               min="0" max="100" step="any" required>
+
+        <button type="submit">Calculate Results</button>
+
+    </form>
+
+    <div id="result">
+        <h3>Student Marks Report</h3>
+
+        <p id="nameResult"></p>
+        <p id="rollResult"></p>
+        <p id="marksResult"></p>
+        <p id="totalResult"></p>
+        <p id="averageResult"></p>
+        <p id="gradeResult"></p>
+    </div>
+
+</div>
+
+<footer>
+    Student Marks Calculation Application | Flask Project
+</footer>
+
+<script>
+
+document.getElementById("marksForm").addEventListener(
+    "submit", async function(event) {
+
+    event.preventDefault();
+
+    const result = document.getElementById("result");
+    result.style.display = "none";
+
+    const name = document.getElementById("studentName").value;
+    const roll = document.getElementById("rollNumber").value;
+
+    const m1 = document.getElementById("m1").value;
+    const m2 = document.getElementById("m2").value;
+    const m3 = document.getElementById("m3").value;
+
+    const params = new URLSearchParams({
+        m1: m1,
+        m2: m2,
+        m3: m3
+    });
+
+    try {
+
+        const response = await fetch(
+            "/calculate?" + params.toString()
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error);
+        }
+
+        document.getElementById("nameResult").textContent =
+            "Student Name: " + name;
+
+        document.getElementById("rollResult").textContent =
+            "Roll Number: " + roll;
+
+        document.getElementById("marksResult").textContent =
+            "Subject Marks: " + data.marks.join(", ");
+
+        document.getElementById("totalResult").textContent =
+            "Total Marks: " + data.total + " / 300";
+
+        document.getElementById("averageResult").textContent =
+            "Average: " + data.average + "%";
+
+        document.getElementById("gradeResult").textContent =
+            "Grade: " + data.grade;
+
+        result.style.display = "block";
+
+    } catch (error) {
+
+        result.style.display = "block";
+        result.innerHTML =
+            '<p class="error">' + error.message + '</p>';
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

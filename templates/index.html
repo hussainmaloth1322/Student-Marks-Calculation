@@ -1,6 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,10 +29,6 @@
 
         header h1 {
             margin: 0;
-        }
-
-        header p {
-            margin-bottom: 0;
         }
 
         .container {
@@ -93,6 +90,7 @@
 
         .error {
             color: #dc2626;
+            font-weight: bold;
         }
 
         footer {
@@ -114,7 +112,7 @@
 
     <h2>Enter Student Details</h2>
 
-    <form id="marksForm">
+    <form id="marksForm" novalidate>
 
         <label>Student Name</label>
         <input type="text" id="studentName"
@@ -143,7 +141,7 @@
 
     </form>
 
-    <div id="result">
+    <div id="result" aria-live="polite">
         <h3>Student Marks Report</h3>
 
         <p id="nameResult"></p>
@@ -177,6 +175,24 @@ document.getElementById("marksForm").addEventListener(
     const m2 = document.getElementById("m2").value;
     const m3 = document.getElementById("m3").value;
 
+    // Validate input fields
+    const numericMarks = [m1, m2, m3].map(Number);
+
+    if (
+        !name.trim() ||
+        !roll.trim() ||
+        [m1, m2, m3].some(value => value.trim() === "") ||
+        numericMarks.some(
+            mark => !Number.isFinite(mark) || mark < 0 || mark > 100
+        )
+    ) {
+        result.innerHTML =
+            '<p class="error">Marks must be between 0 and 100</p>';
+
+        result.style.display = "block";
+        return;
+    }
+
     const params = new URLSearchParams({
         m1: m1,
         m2: m2,
@@ -192,7 +208,11 @@ document.getElementById("marksForm").addEventListener(
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error);
+            result.innerHTML =
+                '<p class="error">' + data.error + '</p>';
+
+            result.style.display = "block";
+            return;
         }
 
         document.getElementById("nameResult").textContent =
@@ -217,10 +237,10 @@ document.getElementById("marksForm").addEventListener(
 
     } catch (error) {
 
-        result.style.display = "block";
         result.innerHTML =
-            '<p class="error">' + error.message + '</p>';
+            '<p class="error">Unable to calculate results. Please try again.</p>';
 
+        result.style.display = "block";
     }
 
 });
